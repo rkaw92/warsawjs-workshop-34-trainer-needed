@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Participant panel</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="page_participant">
+    <header class="participant">
+      <h1 class="title">Participant panel</h1>
+    </header>
+    <main>
+      <section class="user_registration">
+        <div>
+          <form>
+            <h2>Registration</h2>
+            <p>Please choose a user name to show to the trainers:</p>
+            <div class="row"><label for="user_name">Participant name:</label><input type="text" id="user_name" /></div>
+            <div class="row"><label for="user_group">Group number:</label><input type="number" id="user_group" min="1" max="10" step="1" /></div>
+            <button class="register">Start!</button>
+          </form>
+        </div>
+      </section>
+      <section class="participant_controls">
+        <div>
+          <form>
+            <h2>Controls</h2>
+            <button class="start trainer">Summon a trainer</button>
+            <button class="stop">Cancel</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

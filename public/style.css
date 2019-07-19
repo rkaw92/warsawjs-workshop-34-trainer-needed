@@ -1,0 +1,125 @@
+body {
+  background-color: #fdfdfd;
+  margin: 0;
+  padding: 0;
+}
+h1 {
+  color: #f7302f;
+  font-size: 200%;
+}
+a {
+  text-decoration: none;
+}
+header {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.1em 0.1em 0.1em 0.1em;
+  margin-bottom: 0.25em;
+}
+main {
+  margin: 0.1em 0.25em 0.1em 0.25em;
+}
+section {
+  display: block;
+  width: auto;
+  margin-bottom: 1em;
+  text-align: center;
+}
+section div {
+  display: inline-block;
+  text-align: left;
+}
+
+/*
+ Common styles for UX consistency:
+ - green always means Participant
+ - orange always means Trainer
+*/
+.participant {
+  background-color: #e1eec7;
+  color: black;
+}
+.trainer {
+  background-color: #f7302f;
+  color: white;
+}
+header h1 {
+  font-size: 120%;
+}
+/*
+ Specific styles to avoid ambiguity:
+*/
+.participant h1, .trainer h1 {
+  color: inherit;
+}
+
+/*
+  Styles for the index page:
+*/
+.select_mode nav {
+  display: inline-block;
+  padding: 1em;
+  border-radius: 0.5em;
+}
+.select_mode a {
+  font-size: 1.5em;
+  display: block;
+  min-width: 100px;
+  padding: 0.25em;
+  border-radius: 0.25em;
+  margin: 0.25em 0.25em 0.25em 0.25em;
+}
+
+/*
+ Forms:
+*/
+form label {
+  display: inline-block;
+  width: 200px;
+}
+form input {
+  display: inline-block;
+  width: 150px;
+}
+form .row {
+  display: block;
+}
+
+/*
+ Indicators:
+ - source: https://loading.io/css/
+ - use: <div class="lds-ripple"><div></div><div></div></div>
+*/
+.lds-ripple {
+  display: inline-block;
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.lds-ripple div {
+  position: absolute;
+  border: 4px solid #ddd;
+  opacity: 1;
+  border-radius: 50%;
+  animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+.lds-ripple div:nth-child(2) {
+  animation-delay: -0.5s;
+}
+@keyframes lds-ripple {
+  0% {
+    top: 28px;
+    left: 28px;
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    top: -1px;
+    left: -1px;
+    width: 58px;
+    height: 58px;
+    opacity: 0;
+  }
+}
