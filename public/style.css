@@ -32,6 +32,14 @@ section div {
 }
 
 /*
+ Functional classes:
+ - hiding/showing stuff
+*/
+.hidden {
+  display: none !important;
+}
+
+/*
  Common styles for UX consistency:
  - green always means Participant
  - orange always means Trainer

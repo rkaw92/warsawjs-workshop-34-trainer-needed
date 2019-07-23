@@ -14,8 +14,8 @@
           <form>
             <h2>Registration</h2>
             <p>Please choose a user name to show to the trainers:</p>
-            <div class="row"><label for="user_name">Participant name:</label><input type="text" id="user_name" /></div>
-            <div class="row"><label for="user_group">Group number:</label><input type="number" id="user_group" min="1" max="10" step="1" /></div>
+            <div class="row"><label for="user_name">Participant name:</label><input type="text" name="user_name" /></div>
+            <div class="row"><label for="user_group">Group number:</label><input type="number" name="user_group" min="1" max="10" step="1" /></div>
             <button class="register">Start!</button>
           </form>
         </div>
@@ -30,5 +30,6 @@
         </div>
       </section>
     </main>
+    <script src="assets/main.js" id="trainer_needed_script" data-mode="participant"></script>
   </body>
 </html>
