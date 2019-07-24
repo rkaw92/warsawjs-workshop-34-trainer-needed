@@ -55,6 +55,7 @@ uwzględniający zawodność sieci i małą entropię w przeglądarce
 na wezwania po stronie serwera i klienta
 8. Dodać przywracanie stanu z serwera przy ładowaniu widoków
 9. Przetestować zachowanie aplikacji w obliczu problemów sieciowych
+10. Zabezpieczyć aplikację przed niepożądanymi działaniami klientów
 
 ## Licencja
 Kod źródłowy i dokumentacja są dostępne na otwartej licencji MIT.
