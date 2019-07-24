@@ -95,6 +95,59 @@ form .row {
 }
 
 /*
+ Help request listing:
+*/
+ul.requests {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul.requests li {
+  border: 1px solid gray;
+  border-radius: 0.2em;
+  padding: 0.5em;
+  display: block;
+  vertical-align: middle;
+  line-height: 3em;
+  background-color: #fffdf0;
+}
+
+ul.requests li div {
+  line-height: normal;
+  vertical-align: middle;
+}
+
+ul.requests li p {
+  display: block;
+  margin: 0.1em;
+  font-size: 125%;
+}
+
+ul.requests li p span {
+  color: #f7302f;
+}
+
+/*
+ Connection status boxes:
+*/
+.disconnected_warning > div {
+  background-color: #ff5555;
+  color: black;
+  border-radius: 0.25em;
+  width: auto;
+  padding: 0.2em;
+}
+
+.disconnected_warning p {
+  margin-top: 0;
+  margin-bottom: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 0.25em;
+  border-radius: 0.25em;
+}
+
+
+/*
  Indicators:
  - source: https://loading.io/css/
  - use: <div class="lds-ripple"><div></div><div></div></div>

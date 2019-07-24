@@ -6,16 +6,22 @@ const makeStore = require('./store');
 module.exports = function participantView(root, storage) {
   const store = makeStore({
     error: null,
-    isRegistered: Boolean(storage.getItem('user_name') && storage.getItem('user_group'))
+    isRegistered: (
+      Boolean(storage.getItem('user_id')) &&
+      Boolean(storage.getItem('user_name')) &&
+      Boolean(storage.getItem('user_group'))
+    ),
+    isConnected: false
   });
   store.addListener(render);
 
-  function register() {
+  function register(formValues) {
     // TODO: Connect to the server, ask for a new user ID, then bind to the obtained ID.
     // Finally, when done, save the user ID, name and group.
     console.log('register: not implemented');
-    // storage.setItem('user_name', values.user_name);
-    // storage.setItem('user_group', values.user_group);
+    // storage.setItem('user_id', TODO);
+    // storage.setItem('user_name', formValues.user_name);
+    // storage.setItem('user_group', formValues.user_group);
     return Promise.resolve();
   }
 
@@ -23,12 +29,12 @@ module.exports = function participantView(root, storage) {
     event.preventDefault();
     const registrationForm = event.target;
     const registrationData = new FormData(registrationForm);
-    const values = {
+    const formValues = {
       user_name: registrationData.get('user_name'),
       user_group: Number(registrationData.get('user_group'))
     };
-    if (values.user_name && values.user_group) {
-      register().then(function() {
+    if (formValues.user_name && formValues.user_group) {
+      register(formValues).then(function() {
         store.update({ isRegistered: true });
       });
     } else {
@@ -61,6 +67,7 @@ module.exports = function participantView(root, storage) {
     }
     const registrationSection = root.querySelector('.user_registration');
     const registrationForm = registrationSection.querySelector('form');
+    const disconnectedSection = root.querySelector('.disconnected_warning');
     const controlSection = root.querySelector('.participant_controls');
     const summoningButton = controlSection.querySelector('button.start');
     const cancelButton = controlSection.querySelector('button.stop');
@@ -70,6 +77,11 @@ module.exports = function participantView(root, storage) {
     } else {
       show(registrationSection);
       hide(controlSection);
+    }
+    if (state.isConnected) {
+      hide(disconnectedSection);
+    } else {
+      show(disconnectedSection);
     }
     // TODO: Enable/disable the appropriate buttons based on:
     // * connection state (all disabled - wait for connection)
@@ -84,6 +96,7 @@ module.exports = function participantView(root, storage) {
   // * that a trainer has been requested (during our previous connection?)
   // * that a trainer has acknowledged the request and is coming
   // * that a trainer has cancelled their acknowledgement and will not come
+  // * that our help request has been fulfilled (this can be indicated by the trainer)
   // Upon receiving these, the view should update.
 
   store.init();

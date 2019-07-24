@@ -9,7 +9,14 @@ function hide(element) {
   element.classList.add('hidden');
 }
 
+function removeChildren(node) {
+  while (node.firstChild) {
+    node.removeChild(node.firstChild);
+  }
+}
+
 module.exports = {
   show,
-  hide
+  hide,
+  removeChildren
 };

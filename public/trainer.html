@@ -5,6 +5,45 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body class="page_trainer">
-    <script src="trainer-needed.js" id="trainer_needed_script" data-mode="trainer"></script>
+    <header class="trainer">
+      <h1 class="title">Trainer panel</h1>
+    </header>
+    <main>
+      <section class="user_registration hidden">
+        <div>
+          <form>
+            <h2>Registration</h2>
+            <p>Please choose a user name to show to the participants:</p>
+            <div class="row"><label for="user_name">Trainer name:</label><input type="text" name="user_name" /></div>
+            <button class="register">Start!</button>
+          </form>
+        </div>
+      </section>
+      <section class="disconnected_warning hidden">
+        <div>
+          <p>You are currently offline</p>
+        </div>
+      </section>
+      <section class="trainer_controls hidden">
+        <div>
+          <h2>Help requests</h2>
+          <template id="request_template">
+            <li>
+              <div>
+                <p>Request from: <span class="user_name"></span> (group <span class="user_group"></span>)</p>
+                <p>Pending since: <span class="date"></span></p>
+              </div>
+              <div>
+                <div class="lds-ripple"><div></div><div></div></div>
+              </div>
+            </li>
+          </template>
+          <ul class="requests">
+            <!-- NOTE: This is generated dynamically from the template -->
+          </ul>
+        </div>
+      </section>
+    </main>
+    <script src="assets/main.js" id="trainer_needed_script" data-mode="trainer"></script>
   </body>
 </html>
