@@ -11,7 +11,9 @@ module.exports = function participantView(root, storage) {
       Boolean(storage.getItem('binding'))
     ),
     isConnected: false,
-    isBound: false
+    isBound: false,
+    helpRequested: false,
+    helpAcknowledged: false
   });
   store.addListener(render);
   const socket = makeSocket();
@@ -31,6 +33,9 @@ module.exports = function participantView(root, storage) {
         storage.setItem('binding', JSON.stringify(user));
         store.update({ isRegistered: true });
         store.update({ isBound: true });
+      },
+      helpRequested: function() {
+        store.update({ helpRequested: true });
       }
     };
     if (handlers[parsedData.type]) {
@@ -68,11 +73,7 @@ module.exports = function participantView(root, storage) {
 
   function handleTrainerSummoningStart(event) {
     event.preventDefault();
-    // TODO: Send a message over WebSocket to ask a trainer for support.
-    // TODO: Update state locally after successfully asking, or alternatively
-    //  use event-based updates and do nothing until an event arrives.
-    // TODO: Debounce repeated clicks when the request is still in flight.
-    console.log('handleTrainerSummoningStart: not implemented');
+    socket.send(JSON.stringify({ type: 'requestHelp' }));
   }
 
   function handleTrainerSummoningCancel(event) {
@@ -95,6 +96,7 @@ module.exports = function participantView(root, storage) {
     const controlSection = root.querySelector('.participant_controls');
     const summoningButton = controlSection.querySelector('button.start');
     const cancelButton = controlSection.querySelector('button.stop');
+    const waitForTrainerText = controlSection.querySelector('.wait_for_trainer');
     if (state.isRegistered && state.isBound) {
       hide(registrationSection);
       show(controlSection);
@@ -106,6 +108,9 @@ module.exports = function participantView(root, storage) {
       hide(disconnectedSection);
     } else {
       show(disconnectedSection);
+    }
+    if (state.helpRequested && !state.helpAcknowledged) {
+      show(waitForTrainerText);
     }
     // TODO: Enable/disable the appropriate buttons based on:
     // * connection state (all disabled - wait for connection)
