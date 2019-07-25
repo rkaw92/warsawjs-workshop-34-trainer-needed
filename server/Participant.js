@@ -55,6 +55,24 @@ class Participant extends User {
     }
     this.emit('helpRequestFulfilled');
   }
+
+  replayState(client) {
+    if (this._helpRequested) {
+      client.emit('helpRequested');
+    }
+    if (this._helpAcknowledged) {
+      client.emit('helpAcknowledged', { trainer: this._helpingTrainer.getIdentification() });
+    }
+  }
+
+  replayPublicState(client) {
+    if (this._helpRequested) {
+      client.emit('helpRequested');
+    }
+    if (this._helpAcknowledged) {
+      client.emit('helpAcknowledged', { trainer: this._helpingTrainer.getIdentification() });
+    }
+  }
 }
 
 module.exports = Participant;

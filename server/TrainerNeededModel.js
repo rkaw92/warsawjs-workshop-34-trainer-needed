@@ -57,6 +57,34 @@ class TrainerNeededModel {
     return this._usersByID.get(userID);
   }
 
+  replayState(user, socket) {
+    // Create a "private" emitter that we'll be watching and forwarding to
+    //  the client's socket.
+    const client = {
+      emit: function emit(type, payload) {
+        socket.send(JSON.stringify({ source: user.getIdentification(), type, payload }));
+      }
+    };
+    // First, ask the user object to tell the client about its own state:
+    user.replayState(client);
+    // Then, get some "global" state (for trainers only):
+    if (user.getIdentification().type === 'Trainer') {
+      // Replay all help requests and acknowledgements:
+      this._usersByID.forEach(function(existingUser) {
+        const clientForPublicState = {
+          emit: function emit(type, payload) {
+            // The message appears to have come from the user that we asked
+            //  about the global state.
+            socket.send(JSON.stringify({ source: existingUser.getIdentification(), type, payload }));
+          }
+        };
+        if (typeof existingUser.replayPublicState === 'function') {
+          existingUser.replayPublicState(clientForPublicState);
+        }
+      });
+    }
+  }
+
   handleCommand(command, socket, context) {
     switch (command.type) {
       case 'bind': {
@@ -65,6 +93,7 @@ class TrainerNeededModel {
         user.addSocket(socket);
         context.user = user;
         socket.send(JSON.stringify({ type: 'bound', user: user.getIdentification() }));
+        this.replayState(user, socket);
         break;
       }
       case 'requestHelp':

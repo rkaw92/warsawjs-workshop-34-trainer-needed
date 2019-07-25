@@ -35,6 +35,10 @@ class User extends EventEmitter {
       }
     });
   }
+
+  replayState(socket) {
+    // By default, we do nothing. This is going to be overwritten in children.
+  }
 }
 
 module.exports = User;
