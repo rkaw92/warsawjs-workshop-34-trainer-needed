@@ -8,7 +8,7 @@ module.exports = function participantView(root, storage) {
   const store = makeStore({
     error: null,
     isRegistered: (
-      Boolean(storage.getItem('binding'))
+      Boolean(storage.getItem('binding_participant'))
     ),
     isConnected: false,
     isBound: false,
@@ -20,7 +20,7 @@ module.exports = function participantView(root, storage) {
   const socket = makeSocket();
   socket.on('open', function() {
     if (store.state.isRegistered) {
-      bind(JSON.parse(storage.getItem('binding')));
+      bind(JSON.parse(storage.getItem('binding_participant')));
     }
     store.update({ isConnected: true });
   });
@@ -31,7 +31,7 @@ module.exports = function participantView(root, storage) {
     const parsedData = JSON.parse(data);
     const handlers = {
       bound: function({ user }) {
-        storage.setItem('binding', JSON.stringify(user));
+        storage.setItem('binding_participant', JSON.stringify(user));
         store.update({ isRegistered: true });
         store.update({ isBound: true });
       },

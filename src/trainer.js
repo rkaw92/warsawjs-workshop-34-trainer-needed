@@ -2,31 +2,67 @@
 
 const { show, hide, removeChildren } = require('./dom');
 const makeStore = require('./store');
+const makeSocket = require('./socket');
 
 module.exports = function trainerView(root, storage) {
   const store = makeStore({
-    error: null,
     isRegistered: (
-      Boolean(storage.getItem('user_id')) &&
-      Boolean(storage.getItem('user_name'))
+      Boolean(storage.getItem('binding_trainer'))
     ),
     isConnected: false,
+    isBound: false,
     participantCount: 0,
-    helpRequests: new Map([
-      [ 'user1', { user_name: 'Some User', user_id: 'some_user', user_group: 1, date: new Date(), acknowledged_by: null } ]
-    ])
+    helpRequests: new Map()
   });
   store.addListener(render);
+  const socket = makeSocket();
+  socket.on('open', function() {
+    if (store.state.isRegistered) {
+      bind(JSON.parse(storage.getItem('binding_trainer')));
+    }
+    store.update({ isConnected: true });
+  });
+  socket.on('close', function() {
+    store.update({ isConnected: false });
+  });
+  socket.on('message', function({ data }) {
+    const parsedData = JSON.parse(data);
+    const handlers = {
+      bound: function({ user }) {
+        storage.setItem('binding_trainer', JSON.stringify(user));
+        store.update({ isRegistered: true, isBound: true });
+      },
+      helpRequested: function({ source }) {
+        store.state.helpRequests.set(source.user_id, { source, acknowledged: false, helpingTrainer: null, date: new Date() });
+        // We need to notify the store of the change - it won't detect it itself:
+        store.update({ helpRequests: store.state.helpRequests });
+      },
+      helpAcknowledged: function({ source, payload }) {
+        store.state.helpRequests.get(source.user_id).acknowledged = true;
+        store.state.helpRequests.get(source.user_id).helpingTrainer = payload.trainer;
+        store.update({ helpRequests: store.state.helpRequests });
+      }
+    };
+    if (handlers[parsedData.type]) {
+      handlers[parsedData.type](parsedData);
+    }
+  });
+
+  function bind(identification) {
+    socket.send(JSON.stringify({ type: 'bind', identification }));
+  }
 
   function register(formValues) {
-    // TODO: Connect to the server, ask for a new user ID, then bind to the obtained ID in trainer mode.
-    // When successfully connected and bound, save the details in persistent storage.
-    console.log('register: not implemented');
-    // storage.setItem('user_id', TODO);
-    // storage.setItem('user_name', formValues.user_name);
-    // storage.setItem('user_group', formValues.user_group);
-    // TODO: Refactor together with the same function in participant.js to avoid code duplication.
+    bind({
+      user_id: null,
+      user_name: formValues.user_name,
+      type: 'Trainer'
+    });
     return Promise.resolve();
+  }
+
+  function offerHelp(user_id) {
+    socket.send(JSON.stringify({ type: 'offerHelp', target: { user_id } }));
   }
 
   function handleUserRegistration(event) {
@@ -72,11 +108,14 @@ module.exports = function trainerView(root, storage) {
 
     // Render all participants' requests in the order they came (FIFO):
     removeChildren(requestList);
-    state.helpRequests.forEach(function({ user_id, user_name, user_group, date, acknowledged_by }) {
+    state.helpRequests.forEach(function({ source: { user_id, user_name, user_group }, date, helpingTrainer }) {
       const requestElement = document.importNode(requestTemplate.content, true);
       requestElement.querySelector('.user_name').textContent = user_name;
       requestElement.querySelector('.user_group').textContent = String(user_group);
       requestElement.querySelector('.date').textContent = (new Date(date)).toISOString();
+      requestElement.querySelector('button.offer_help').addEventListener('click', function() {
+        offerHelp(user_id);
+      });
       requestList.appendChild(requestElement);
     });
 
