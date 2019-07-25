@@ -111,7 +111,7 @@ module.exports = function participantView(root, storage) {
     const waitForTrainerText = controlSection.querySelector('.wait_for_trainer');
     const trainerRespondedText = controlSection.querySelector('.trainer_responded');
     console.log('render state: %j', state);
-    if (state.isRegistered && state.isBound) {
+    if (state.isRegistered) {
       hide(registrationSection);
       show(controlSection);
     } else {
