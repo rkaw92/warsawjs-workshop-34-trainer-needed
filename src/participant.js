@@ -1,6 +1,6 @@
 'use strict';
 
-const { show, hide } = require('./dom');
+const { show, hide, enable, disable } = require('./dom');
 const makeStore = require('./store');
 const makeSocket = require('./socket');
 
@@ -40,6 +40,9 @@ module.exports = function participantView(root, storage) {
       },
       helpAcknowledged: function({ payload }) {
         store.update({ helpAcknowledged: true, helpingTrainer: payload.trainer });
+      },
+      helpRequestFulfilled: function() {
+        store.update({ helpRequested: false, helpAcknowledged: false, helpingTrainer: null });
       }
     };
     if (handlers[parsedData.type]) {
@@ -89,6 +92,11 @@ module.exports = function participantView(root, storage) {
     console.log('handleTrainerSummoningCancel: not implemented');
   }
 
+  function handleThanks(event) {
+    event.preventDefault();
+    socket.send(JSON.stringify({ type: 'fulfillHelp' }));
+  }
+
   function render(state) {
     if (state.error) {
       // TODO: Display the error to the user in a visible place.
@@ -99,9 +107,10 @@ module.exports = function participantView(root, storage) {
     const disconnectedSection = root.querySelector('.disconnected_warning');
     const controlSection = root.querySelector('.participant_controls');
     const summoningButton = controlSection.querySelector('button.start');
-    const cancelButton = controlSection.querySelector('button.stop');
+    const thanksButton = controlSection.querySelector('button.thanks');
     const waitForTrainerText = controlSection.querySelector('.wait_for_trainer');
     const trainerRespondedText = controlSection.querySelector('.trainer_responded');
+    console.log('render state: %j', state);
     if (state.isRegistered && state.isBound) {
       hide(registrationSection);
       show(controlSection);
@@ -114,25 +123,27 @@ module.exports = function participantView(root, storage) {
     } else {
       show(disconnectedSection);
     }
-    if (state.helpRequested && !state.helpAcknowledged) {
+    if (!state.helpRequested) {
+      hide(waitForTrainerText);
+      hide(trainerRespondedText);
+      disable(thanksButton);
+    } else if (state.helpRequested && !state.helpAcknowledged) {
       show(waitForTrainerText);
+      hide(trainerRespondedText);
+      disable(thanksButton);
     } else if (state.helpRequested && state.helpAcknowledged) {
       hide(waitForTrainerText);
       show(trainerRespondedText);
+      enable(thanksButton);
       trainerRespondedText.querySelector('.trainer_name').textContent = state.helpingTrainer.user_name;
     }
-    // TODO: Enable/disable the appropriate buttons based on:
-    // * connection state (all disabled - wait for connection)
-    // * current summoning activity (only allow start when not started already)
 
     registrationForm.addEventListener('submit', handleUserRegistration);
     summoningButton.addEventListener('click', handleTrainerSummoningStart);
-    cancelButton.addEventListener('click', handleTrainerSummoningCancel);
+    thanksButton.addEventListener('click', handleThanks);
   }
 
   // TODO: Listen for notifications that indicate:
-  // * that a trainer has been requested (during our previous connection?)
-  // * that a trainer has acknowledged the request and is coming
   // * that a trainer has cancelled their acknowledgement and will not come
   // * that our help request has been fulfilled (this can be indicated by the trainer)
   // Upon receiving these, the view should update.
