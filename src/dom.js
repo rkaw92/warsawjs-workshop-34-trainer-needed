@@ -3,10 +3,15 @@
 // View utilities to encapsulate dealing with CSS classes:
 function show(element) {
   element.classList.remove('hidden');
+  element.classList.remove('invisible');
 }
 
-function hide(element) {
-  element.classList.add('hidden');
+function hide(element, visibilityOnly) {
+  if (visibilityOnly) {
+    element.classList.add('invisible');
+  } else {
+    element.classList.add('hidden');
+  }
 }
 
 function enable(element) {

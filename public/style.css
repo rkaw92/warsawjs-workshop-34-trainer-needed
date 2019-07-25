@@ -38,6 +38,9 @@ section div {
 .hidden {
   display: none !important;
 }
+.invisible {
+  visibility: hidden !important;
+}
 
 /*
  Common styles for UX consistency:
@@ -145,6 +148,14 @@ ul.requests li p span {
   padding: 0.25em;
   border-radius: 0.25em;
 }
+
+/**
+ * Forms and buttons:
+ */
+ button.thanks[disabled] {
+   background-color: white;
+   color: #888;
+ }
 
 
 /*

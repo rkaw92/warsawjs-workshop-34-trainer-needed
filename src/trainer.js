@@ -1,6 +1,6 @@
 'use strict';
 
-const { show, hide, removeChildren } = require('./dom');
+const { show, hide, enable, disable, removeChildren } = require('./dom');
 const makeStore = require('./store');
 const makeSocket = require('./socket');
 
@@ -40,6 +40,10 @@ module.exports = function trainerView(root, storage) {
       helpAcknowledged: function({ source, payload }) {
         store.state.helpRequests.get(source.user_id).acknowledged = true;
         store.state.helpRequests.get(source.user_id).helpingTrainer = payload.trainer;
+        store.update({ helpRequests: store.state.helpRequests });
+      },
+      thanked: function({ payload }) {
+        store.state.helpRequests.delete(payload.participant.user_id);
         store.update({ helpRequests: store.state.helpRequests });
       }
     };
@@ -108,11 +112,15 @@ module.exports = function trainerView(root, storage) {
 
     // Render all participants' requests in the order they came (FIFO):
     removeChildren(requestList);
-    state.helpRequests.forEach(function({ source: { user_id, user_name, user_group }, date, helpingTrainer }) {
+    state.helpRequests.forEach(function({ source: { user_id, user_name, user_group }, date, acknowledged, helpingTrainer }) {
       const requestElement = document.importNode(requestTemplate.content, true);
       requestElement.querySelector('.user_name').textContent = user_name;
       requestElement.querySelector('.user_group').textContent = String(user_group);
       requestElement.querySelector('.date').textContent = (new Date(date)).toISOString();
+      if (acknowledged) {
+        hide(requestElement.querySelector('.pending_indicator'), true);
+        disable(requestElement.querySelector('.offer_help'));
+      }
       requestElement.querySelector('button.offer_help').addEventListener('click', function() {
         offerHelp(user_id);
       });
