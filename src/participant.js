@@ -13,7 +13,8 @@ module.exports = function participantView(root, storage) {
     isConnected: false,
     isBound: false,
     helpRequested: false,
-    helpAcknowledged: false
+    helpAcknowledged: false,
+    helpingTrainer: null
   });
   store.addListener(render);
   const socket = makeSocket();
@@ -36,6 +37,9 @@ module.exports = function participantView(root, storage) {
       },
       helpRequested: function() {
         store.update({ helpRequested: true });
+      },
+      helpAcknowledged: function({ payload }) {
+        store.update({ helpAcknowledged: true, helpingTrainer: payload.trainer });
       }
     };
     if (handlers[parsedData.type]) {
@@ -97,6 +101,7 @@ module.exports = function participantView(root, storage) {
     const summoningButton = controlSection.querySelector('button.start');
     const cancelButton = controlSection.querySelector('button.stop');
     const waitForTrainerText = controlSection.querySelector('.wait_for_trainer');
+    const trainerRespondedText = controlSection.querySelector('.trainer_responded');
     if (state.isRegistered && state.isBound) {
       hide(registrationSection);
       show(controlSection);
@@ -111,6 +116,10 @@ module.exports = function participantView(root, storage) {
     }
     if (state.helpRequested && !state.helpAcknowledged) {
       show(waitForTrainerText);
+    } else if (state.helpRequested && state.helpAcknowledged) {
+      hide(waitForTrainerText);
+      show(trainerRespondedText);
+      trainerRespondedText.querySelector('.trainer_name').textContent = state.helpingTrainer.user_name;
     }
     // TODO: Enable/disable the appropriate buttons based on:
     // * connection state (all disabled - wait for connection)
