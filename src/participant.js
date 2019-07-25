@@ -2,27 +2,53 @@
 
 const { show, hide } = require('./dom');
 const makeStore = require('./store');
+const makeSocket = require('./socket');
 
 module.exports = function participantView(root, storage) {
   const store = makeStore({
     error: null,
     isRegistered: (
-      Boolean(storage.getItem('user_id')) &&
-      Boolean(storage.getItem('user_name')) &&
-      Boolean(storage.getItem('user_group'))
+      Boolean(storage.getItem('binding'))
     ),
-    isConnected: false
+    isConnected: false,
+    isBound: false
   });
   store.addListener(render);
+  const socket = makeSocket();
+  socket.on('open', function() {
+    if (store.state.isRegistered) {
+      bind(JSON.parse(storage.getItem('binding')));
+    }
+    store.update({ isConnected: true });
+  });
+  socket.on('close', function() {
+    store.update({ isConnected: false });
+  });
+  socket.on('message', function({ data }) {
+    const parsedData = JSON.parse(data);
+    const handlers = {
+      bound: function({ user }) {
+        storage.setItem('binding', JSON.stringify(user));
+        store.update({ isRegistered: true });
+        store.update({ isBound: true });
+      }
+    };
+    if (handlers[parsedData.type]) {
+      handlers[parsedData.type](parsedData);
+    }
+  });
+
+  function bind(identification) {
+    socket.send(JSON.stringify({ type: 'bind', identification }));
+  }
 
   function register(formValues) {
-    // TODO: Connect to the server, ask for a new user ID, then bind to the obtained ID.
-    // Finally, when done, save the user ID, name and group.
-    console.log('register: not implemented');
-    // storage.setItem('user_id', TODO);
-    // storage.setItem('user_name', formValues.user_name);
-    // storage.setItem('user_group', formValues.user_group);
-    return Promise.resolve();
+    bind({
+      user_id: null,
+      user_name: formValues.user_name,
+      user_group: formValues.user_group,
+      type: 'Participant'
+    });
   }
 
   function handleUserRegistration(event) {
@@ -34,9 +60,7 @@ module.exports = function participantView(root, storage) {
       user_group: Number(registrationData.get('user_group'))
     };
     if (formValues.user_name && formValues.user_group) {
-      register(formValues).then(function() {
-        store.update({ isRegistered: true });
-      });
+      register(formValues);
     } else {
       store.update({ error: new Error('Missing data in registration form') });
     }
@@ -71,7 +95,7 @@ module.exports = function participantView(root, storage) {
     const controlSection = root.querySelector('.participant_controls');
     const summoningButton = controlSection.querySelector('button.start');
     const cancelButton = controlSection.querySelector('button.stop');
-    if (state.isRegistered) {
+    if (state.isRegistered && state.isBound) {
       hide(registrationSection);
       show(controlSection);
     } else {

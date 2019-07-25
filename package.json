@@ -27,6 +27,8 @@
   "homepage": "https://github.com/rkaw92/warsawjs-workshop-34-trainer-needed#readme",
   "dependencies": {
     "colors": "^1.3.3",
+    "cuid": "^2.1.6",
+    "eventemitter2": "^5.0.1",
     "express": "^4.17.1",
     "ws": "^7.1.1"
   },

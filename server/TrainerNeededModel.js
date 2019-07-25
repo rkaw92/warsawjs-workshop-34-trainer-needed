@@ -3,6 +3,7 @@
 const User = require('./User');
 const Participant = require('./Participant');
 const Trainer = require('./Trainer');
+const cuid = require('cuid');
 
 class TrainerNeededModel {
   constructor() {
@@ -46,6 +47,9 @@ class TrainerNeededModel {
   }
 
   _findOrCreateUser(identification) {
+    if (!identification.user_id) {
+      identification.user_id = cuid();
+    }
     const userID = identification.user_id;
     if (!this._usersByID.has(userID)) {
       this._createUser(identification);
